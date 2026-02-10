@@ -1,6 +1,4 @@
-// @ts-nocheck
-
-import type {MDXComponents as MDXComponentsType} from "mdx/types";
+import type { MDXComponents as MDXComponentsType } from "mdx/types";
 import Image from "next/image";
 import Link from "next/link";
 import {Callout} from "./Callout";

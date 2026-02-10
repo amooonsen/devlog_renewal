@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import dayjs from "dayjs";
+import { Button, Input } from "@repo/ui";
 
 interface Comment {
   id: number;
@@ -64,21 +65,19 @@ export function CommentItem({ comment, onReply, onDeleted }: CommentItemProps) {
             {dayjs(comment.created_at).format("YYYY.MM.DD HH:mm")}
           </span>
         </div>
-        <div className="flex gap-2 text-xs">
+        <div className="flex gap-1">
           {onReply && (
-            <button
-              onClick={onReply}
-              className="text-muted-foreground hover:text-foreground"
-            >
+            <Button variant="ghost" size="sm" onClick={onReply}>
               답글
-            </button>
+            </Button>
           )}
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setShowDeleteForm(!showDeleteForm)}
-            className="text-muted-foreground hover:text-destructive"
           >
             삭제
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -88,30 +87,32 @@ export function CommentItem({ comment, onReply, onDeleted }: CommentItemProps) {
 
       {showDeleteForm && (
         <div className="mt-3 flex items-center gap-2">
-          <input
+          <Input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="비밀번호"
-            className="h-8 rounded-md border border-input bg-background px-2 text-sm"
+            className="h-8 w-40"
           />
-          <button
+          <Button
+            size="sm"
+            variant="destructive"
             onClick={handleDelete}
             disabled={deleting}
-            className="h-8 rounded-md bg-destructive px-3 text-xs text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
           >
             {deleting ? "삭제 중..." : "확인"}
-          </button>
-          <button
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
             onClick={() => {
               setShowDeleteForm(false);
               setPassword("");
               setError("");
             }}
-            className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
           >
             취소
-          </button>
+          </Button>
           {error && <span className="text-xs text-destructive">{error}</span>}
         </div>
       )}

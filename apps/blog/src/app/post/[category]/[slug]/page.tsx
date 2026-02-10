@@ -2,24 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import dayjs from "dayjs";
 import { notFound } from "next/navigation";
-import { getPost, getAllPublishedSlugs } from "@/lib/posts";
+import { getPost } from "@/lib/posts";
 import { getCommentsByPost } from "@/lib/comments";
 import { renderMDX } from "@/lib/mdx";
 import { CommentSection } from "@/components/comment/CommentSection";
 import { ViewCounter } from "@/components/post/ViewCounter";
 
+// 빌드 시 cookies() 사용 불가하므로 동적 렌더링
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ category: string; slug: string }>;
-}
-
-export async function generateStaticParams() {
-  const { data } = await getAllPublishedSlugs();
-  if (!data) return [];
-
-  return data.map((post) => ({
-    category: post.categories?.slug ?? "uncategorized",
-    slug: post.slug,
-  }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

@@ -1,5 +1,6 @@
-import { type FormEvent, useState } from "react";
 import { useNavigate } from "react-router";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
   Input,
@@ -11,27 +12,29 @@ import {
   CardTitle,
 } from "@repo/ui";
 import { useAuth } from "@/hooks/useAuth";
+import { loginSchema, type LoginFormValues } from "@/lib/schemas";
 
 export function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+  });
 
+  const onSubmit = async (data: LoginFormValues) => {
     try {
-      await signIn(email, password);
+      await signIn(data.email, data.password);
       navigate("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
-    } finally {
-      setLoading(false);
+      setError("root", {
+        message: err instanceof Error ? err.message : "Login failed",
+      });
     }
   };
 
@@ -43,10 +46,10 @@ export function LoginPage() {
           <CardDescription>Sign in to manage your blog</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {errors.root && (
               <p className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
+                {errors.root.message}
               </p>
             )}
 
@@ -55,11 +58,14 @@ export function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                value={email}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-                required
                 placeholder="admin@example.com"
+                {...register("email")}
               />
+              {errors.email && (
+                <p className="text-sm text-destructive">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -67,14 +73,17 @@ export function LoginPage() {
               <Input
                 id="password"
                 type="password"
-                value={password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                required
+                {...register("password")}
               />
+              {errors.password && (
+                <p className="text-sm text-destructive">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign In"}
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? "Signing in..." : "Sign In"}
             </Button>
           </form>
         </CardContent>

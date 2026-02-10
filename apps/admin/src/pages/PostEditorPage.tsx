@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import MDEditor from "@uiw/react-md-editor";
 import { ArrowLeft, Save } from "lucide-react";
 import {
+  Badge,
   Button,
   Input,
   Label,
@@ -324,9 +325,10 @@ export function PostEditorPage() {
                       {tags.map((tag) => {
                         const selected = field.value.includes(tag.id);
                         return (
-                          <button
+                          <Badge
                             key={tag.id}
-                            type="button"
+                            variant={selected ? "default" : "outline"}
+                            className="cursor-pointer"
                             onClick={() => {
                               if (selected) {
                                 field.onChange(
@@ -336,14 +338,9 @@ export function PostEditorPage() {
                                 field.onChange([...field.value, tag.id]);
                               }
                             }}
-                            className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                              selected
-                                ? "border-primary bg-primary text-primary-foreground"
-                                : "border-border hover:bg-accent"
-                            }`}
                           >
                             {tag.name}
-                          </button>
+                          </Badge>
                         );
                       })}
                       {tags.length === 0 && (

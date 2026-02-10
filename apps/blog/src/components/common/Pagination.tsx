@@ -4,19 +4,24 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   basePath: string;
+  searchParams?: Record<string, string>;
 }
 
 export function Pagination({
   currentPage,
   totalPages,
   basePath,
+  searchParams = {},
 }: PaginationProps) {
   if (totalPages <= 1) return null;
 
   const pages = getPageNumbers(currentPage, totalPages);
 
   function buildHref(page: number) {
-    return page === 1 ? basePath : `${basePath}?page=${page}`;
+    const params = new URLSearchParams(searchParams);
+    if (page > 1) params.set("page", String(page));
+    const qs = params.toString();
+    return qs ? `${basePath}?${qs}` : basePath;
   }
 
   return (
