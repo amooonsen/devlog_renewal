@@ -52,3 +52,20 @@ export interface PostListItem
   category: Pick<Category, "name" | "slug">;
   tags: Pick<Tag, "name" | "slug">[];
 }
+
+/** search_posts RPC 반환 타입 */
+export interface PostSearchResult
+  extends Pick<
+    Post,
+    | "id"
+    | "title"
+    | "slug"
+    | "excerpt"
+    | "thumbnail_url"
+    | "published_at"
+    | "view_count"
+    | "is_featured"
+    | "category_id"
+  > {
+  rank: number;
+}

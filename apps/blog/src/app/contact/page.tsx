@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ContactForm } from "@/components/contact/ContactForm";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -7,17 +8,15 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-2xl space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Contact</h1>
         <p className="mt-2 text-muted-foreground">
-          궁금한 점이 있으시면 문의해주세요.
+          궁금한 점이 있으시면 아래 양식으로 문의해주세요.
         </p>
       </div>
 
-      <p className="text-muted-foreground">
-        Coming soon. Contact form will be implemented.
-      </p>
+      <ContactForm />
     </div>
   );
 }

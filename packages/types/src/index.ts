@@ -5,6 +5,7 @@ export type {
   Post,
   PostWithRelations,
   PostListItem,
+  PostSearchResult,
 } from "./post";
 
 export type {

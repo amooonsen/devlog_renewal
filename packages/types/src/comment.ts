@@ -6,6 +6,7 @@ export interface Comment {
   is_approved: boolean;
   parent_id: number | null;
   created_at: string;
+  updated_at: string;
 }
 
 export interface CommentWithReplies extends Comment {
