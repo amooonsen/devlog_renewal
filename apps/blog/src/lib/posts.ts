@@ -61,6 +61,20 @@ export async function getPublishedPosts(options?: {
   const limit = options?.limit ?? 10;
   const offset = (page - 1) * limit;
 
+  // 카테고리 슬러그로 필터링하는 경우, 먼저 category_id를 찾아야 함
+  let categoryId: number | undefined;
+  if (options?.category) {
+    const { data: categoryData } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("slug", options.category)
+      .single();
+
+    if (categoryData) {
+      categoryId = categoryData.id;
+    }
+  }
+
   let query = supabase
     .from("posts")
     .select(
@@ -73,12 +87,14 @@ export async function getPublishedPosts(options?: {
       { count: "exact" }
     )
     .eq("status", "published")
-    .order("published_at", { ascending: false })
-    .range(offset, offset + limit - 1);
+    .order("published_at", { ascending: false });
 
-  if (options?.category) {
-    query = query.eq("categories.slug", options.category);
+  // 카테고리 ID로 필터링
+  if (categoryId) {
+    query = query.eq("category_id", categoryId);
   }
+
+  query = query.range(offset, offset + limit - 1);
 
   const { data, count } = await query;
   return { data, count };
