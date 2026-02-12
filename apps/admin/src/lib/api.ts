@@ -190,9 +190,9 @@ export interface CommentFilter {
   perPage?: number;
 }
 
-export interface CommentWithPost extends Comment {
+export type CommentWithPost = Comment & {
   posts: { title: string; slug: string } | null;
-}
+};
 
 export async function fetchComments(filter?: CommentFilter) {
   const page = filter?.page ?? 1;

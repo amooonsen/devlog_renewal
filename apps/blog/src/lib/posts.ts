@@ -1,11 +1,17 @@
 import { createClient } from "./supabase";
+import type { Database } from "@repo/database";
 
-// Database 타입이 생성되기 전까지 any 캐스트 필요 (`pnpm db:generate` 후 제거)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function getSupabase(): Promise<any> {
+// Supabase 클라이언트 생성 헬퍼
+async function getSupabase() {
   return createClient();
 }
 
+// Supabase 생성 타입 활용
+type Post = Database["public"]["Tables"]["posts"]["Row"];
+type Category = Database["public"]["Tables"]["categories"]["Row"];
+type Tag = Database["public"]["Tables"]["tags"]["Row"];
+
+// 조인 쿼리 결과 타입
 interface PostListItem {
   id: string;
   title: string;
@@ -19,30 +25,12 @@ interface PostListItem {
   post_tags: { tags: { name: string; slug: string } | null }[] | null;
 }
 
-interface PostDetail {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  excerpt: string | null;
-  thumbnail_url: string | null;
-  status: string;
-  is_featured: boolean;
-  view_count: number;
-  category_id: number;
-  published_at: string | null;
-  created_at: string;
-  updated_at: string;
+interface PostDetail extends Post {
   categories: { name: string; slug: string } | null;
   post_tags: { tags: { name: string; slug: string } | null }[] | null;
 }
 
-interface CategoryItem {
-  id: number;
-  name: string;
-  slug: string;
-  description: string | null;
-}
+type CategoryItem = Category;
 
 interface SlugItem {
   slug: string;
@@ -68,7 +56,7 @@ export async function getPublishedPosts(options?: {
       .from("categories")
       .select("id")
       .eq("slug", options.category)
-      .single();
+      .single<{ id: number }>();
 
     if (categoryData) {
       categoryId = categoryData.id;
@@ -172,5 +160,6 @@ export async function getAllPublishedSlugs(): Promise<{
 
 export async function incrementViewCount(postId: string) {
   const supabase = await getSupabase();
+  // @ts-expect-error - Supabase RPC 타입 추론 문제 (pnpm db:generate로 해결 가능)
   await supabase.rpc("increment_view_count", { p_post_id: postId });
 }
