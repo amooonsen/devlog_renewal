@@ -1,4 +1,4 @@
-import { forwardRef, type HTMLAttributes, type TdHTMLAttributes, type ThHTMLAttributes } from "react";
+import { forwardRef, type ComponentPropsWithoutRef, type HTMLAttributes, type TdHTMLAttributes, type ThHTMLAttributes } from "react";
 import { cn } from "../lib/utils";
 
 const Table = forwardRef<HTMLTableElement, HTMLAttributes<HTMLTableElement>>(
@@ -93,7 +93,7 @@ TableCell.displayName = "TableCell";
 
 const TableCaption = forwardRef<
   HTMLTableCaptionElement,
-  HTMLAttributes<HTMLTableCaptionElement>
+  ComponentPropsWithoutRef<"caption">
 >(({ className, ...props }, ref) => (
   <caption
     ref={ref}
