@@ -1,15 +1,6 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { createReadOnlyClient } from "./supabase-readonly";
-
-/** 승인된 댓글의 공개 표시 항목 타입 */
-interface CommentItem {
-  id: number;
-  post_id: string;
-  author_name: string;
-  content: string;
-  parent_id: number | null;
-  created_at: string;
-}
+import type { CommentPublic } from "@repo/types";
 
 /**
  * 특정 포스트의 승인된 댓글 목록을 시간순으로 조회합니다.
@@ -22,7 +13,7 @@ interface CommentItem {
  */
 export async function getCommentsByPost(
   postId: string
-): Promise<{ data: CommentItem[] | null }> {
+): Promise<{ data: CommentPublic[] | null }> {
   "use cache";
   cacheLife("minutes");
   cacheTag("comments");

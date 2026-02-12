@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import dayjs from "dayjs";
+import { formatDateTime } from "@repo/date-utils";
 import { Button, Input } from "@repo/ui";
 
 interface Comment {
@@ -62,7 +62,7 @@ export function CommentItem({ comment, onReply, onDeleted }: CommentItemProps) {
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">{comment.author_name}</span>
           <span className="text-xs text-muted-foreground">
-            {dayjs(comment.created_at).format("YYYY.MM.DD HH:mm")}
+            {formatDateTime(comment.created_at)}
           </span>
         </div>
         <div className="flex gap-1">

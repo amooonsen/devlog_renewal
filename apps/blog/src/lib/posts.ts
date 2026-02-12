@@ -1,40 +1,12 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { createReadOnlyClient } from "./supabase-readonly";
 import { createClient } from "./supabase";
-import type { Database } from "@repo/database";
-
-// Supabase 생성 타입 활용
-type Post = Database["public"]["Tables"]["posts"]["Row"];
-type Category = Database["public"]["Tables"]["categories"]["Row"];
-
-/** 포스트 목록 조회 시 반환되는 항목 타입 (조인 포함) */
-interface PostListItem {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  thumbnail_url: string | null;
-  published_at: string | null;
-  view_count: number;
-  is_featured: boolean;
-  categories: { name: string; slug: string } | null;
-  post_tags: { tags: { name: string; slug: string } | null }[] | null;
-}
-
-/** 포스트 상세 조회 시 반환되는 타입 (전체 컬럼 + 조인) */
-interface PostDetail extends Post {
-  categories: { name: string; slug: string } | null;
-  post_tags: { tags: { name: string; slug: string } | null }[] | null;
-}
-
-type CategoryItem = Category;
-
-/** 사이트맵 생성용 슬러그 항목 타입 */
-interface SlugItem {
-  slug: string;
-  updated_at: string;
-  categories: { slug: string } | null;
-}
+import type {
+  Category,
+  PostListQueryResult,
+  PostDetailQueryResult,
+  PostSlugQueryResult,
+} from "@repo/types";
 
 /**
  * 발행된 포스트 목록을 페이지네이션하여 조회합니다.
@@ -50,7 +22,7 @@ export async function getPublishedPosts(options?: {
   tag?: string;
   page?: number;
   limit?: number;
-}): Promise<{ data: PostListItem[] | null; count: number | null }> {
+}): Promise<{ data: PostListQueryResult[] | null; count: number | null }> {
   "use cache";
   cacheLife("minutes");
   cacheTag("posts");
@@ -112,7 +84,7 @@ export async function getPublishedPosts(options?: {
 export async function getPost(
   _category: string,
   slug: string
-): Promise<{ data: PostDetail | null }> {
+): Promise<{ data: PostDetailQueryResult | null }> {
   "use cache";
   cacheLife("minutes");
   cacheTag("posts");
@@ -143,7 +115,7 @@ export async function getPost(
  * @returns 추천 포스트 목록
  */
 export async function getFeaturedPosts(): Promise<{
-  data: PostListItem[] | null;
+  data: PostListQueryResult[] | null;
 }> {
   "use cache";
   cacheLife("minutes");
@@ -178,7 +150,7 @@ export async function getFeaturedPosts(): Promise<{
  * @returns 카테고리 목록
  */
 export async function getCategories(): Promise<{
-  data: CategoryItem[] | null;
+  data: Category[] | null;
 }> {
   "use cache";
   cacheLife("hours");
@@ -204,7 +176,7 @@ export async function getCategories(): Promise<{
  * @returns 슬러그 목록
  */
 export async function getAllPublishedSlugs(): Promise<{
-  data: SlugItem[] | null;
+  data: PostSlugQueryResult[] | null;
 }> {
   "use cache";
   cacheLife("hours");

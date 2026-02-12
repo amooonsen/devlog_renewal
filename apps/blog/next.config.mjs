@@ -6,7 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   outputFileTracingRoot: path.join(__dirname, "../../"),
-  transpilePackages: ["@repo/ui", "@repo/database", "@repo/types"],
+  transpilePackages: ["@repo/ui", "@repo/database", "@repo/types", "@repo/date-utils"],
 
   // React Compiler (stable) - 자동 메모이제이션으로 useMemo/useCallback 불필요
   reactCompiler: true,

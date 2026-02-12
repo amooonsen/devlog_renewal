@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import dayjs from "dayjs";
+import { formatKoreanDate } from "@repo/date-utils";
 import { notFound } from "next/navigation";
 import { getPost } from "@/lib/posts";
 import { getCommentsByPost } from "@/lib/comments";
@@ -90,7 +90,7 @@ export default async function PostDetailPage({ params }: Props) {
             <>
               <span className="text-muted-foreground">·</span>
               <time className="text-muted-foreground">
-                {dayjs(post.published_at).format("YYYY년 MM월 DD일")}
+                {formatKoreanDate(post.published_at)}
               </time>
             </>
           )}

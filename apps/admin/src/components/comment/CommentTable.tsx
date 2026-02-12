@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import { formatDate } from "@repo/date-utils";
 import { Check, X, Trash2 } from "lucide-react";
 import {
   Table,
@@ -64,7 +64,7 @@ export function CommentTable({
               </Badge>
             </TableCell>
             <TableCell className="text-muted-foreground">
-              {dayjs(comment.created_at).format("YYYY.MM.DD")}
+              {formatDate(comment.created_at)}
             </TableCell>
             <TableCell className="text-right">
               <div className="flex justify-end gap-1">

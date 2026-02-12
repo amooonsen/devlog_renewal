@@ -19,3 +19,9 @@ export interface DeleteCommentInput {
   comment_id: number;
   password: string;
 }
+
+/** 블로그 공개 댓글 조회 결과 타입 (비밀번호 미포함) */
+export type CommentPublic = Pick<
+  Comment,
+  "id" | "post_id" | "author_name" | "content" | "parent_id" | "created_at"
+>;

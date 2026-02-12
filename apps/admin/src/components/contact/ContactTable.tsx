@@ -1,5 +1,5 @@
 import { useState } from "react";
-import dayjs from "dayjs";
+import { formatDateTime } from "@repo/date-utils";
 import { Mail, MailOpen, Eye } from "lucide-react";
 import {
   Table,
@@ -82,7 +82,7 @@ export function ContactTable({ contacts, onMarkAsRead }: ContactTableProps) {
                 </div>
               </TableCell>
               <TableCell className="text-muted-foreground">
-                {dayjs(contact.created_at).format("YYYY.MM.DD HH:mm")}
+                {formatDateTime(contact.created_at)}
               </TableCell>
               <TableCell className="text-right">
                 <Button
@@ -109,7 +109,7 @@ export function ContactTable({ contacts, onMarkAsRead }: ContactTableProps) {
             <DialogDescription>
               {selectedContact?.name} ({selectedContact?.email}) &middot;{" "}
               {selectedContact &&
-                dayjs(selectedContact.created_at).format("YYYY.MM.DD HH:mm")}
+                formatDateTime(selectedContact.created_at)}
             </DialogDescription>
           </DialogHeader>
           <div className="whitespace-pre-wrap text-sm leading-relaxed">
