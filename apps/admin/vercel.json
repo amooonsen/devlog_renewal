@@ -5,7 +5,7 @@
   "buildCommand": "cd ../.. && pnpm turbo build --filter=admin...",
   "outputDirectory": "dist",
   "installCommand": "cd ../.. && pnpm install",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD apps/admin/ packages/",
+  "ignoreCommand": "bash -c 'git diff --quiet HEAD~1 HEAD apps/admin/ packages/ 2>/dev/null || exit 1'",
   "rewrites": [
     {
       "source": "/(.*)",
