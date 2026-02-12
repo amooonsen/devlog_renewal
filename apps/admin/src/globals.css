@@ -83,3 +83,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Select 드롭다운이 제대로 보이도록 추가 스타일 */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
+
+/* MDEditor와의 충돌 방지 */
+.w-md-editor {
+  z-index: 1 !important;
+}
