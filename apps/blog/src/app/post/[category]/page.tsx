@@ -8,9 +8,6 @@ import { CategoryFilter } from "@/components/common/CategoryFilter";
 import { SearchInput } from "@/components/common/SearchInput";
 import { notFound } from "next/navigation";
 
-// 60초마다 재검증 (ISR)
-export const revalidate = 60;
-
 interface Props {
   params: Promise<{ category: string }>;
   searchParams: Promise<{ page?: string; q?: string }>;

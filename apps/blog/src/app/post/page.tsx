@@ -12,9 +12,6 @@ export const metadata: Metadata = {
   description: "모든 포스트 목록",
 };
 
-// 60초마다 재검증 (ISR)
-export const revalidate = 60;
-
 interface Props {
   searchParams: Promise<{ page?: string; q?: string }>;
 }

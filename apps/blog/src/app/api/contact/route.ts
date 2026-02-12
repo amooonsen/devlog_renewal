@@ -37,6 +37,8 @@ export async function POST(request: Request) {
 
     const supabase = await createClient();
 
+    // createServerClient의 contacts INSERT 타입이 never로 추론되는 SDK 제한
+    // 런타임에서는 RLS(contacts_anyone_insert)으로 정상 동작
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase as any).from("contacts").insert({
       name: name.trim(),

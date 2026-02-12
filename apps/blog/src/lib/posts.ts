@@ -1,10 +1,7 @@
+import { cacheLife, cacheTag } from "next/cache";
+import { createReadOnlyClient } from "./supabase-readonly";
 import { createClient } from "./supabase";
 import type { Database } from "@repo/database";
-
-/** Supabase 서버 클라이언트 생성 헬퍼 */
-async function getSupabase() {
-  return createClient();
-}
 
 // Supabase 생성 타입 활용
 type Post = Database["public"]["Tables"]["posts"]["Row"];
@@ -42,8 +39,8 @@ interface SlugItem {
 /**
  * 발행된 포스트 목록을 페이지네이션하여 조회합니다.
  *
- * 카테고리 슬러그가 주어지면 해당 카테고리의 포스트만 필터링하며,
- * Supabase의 range 쿼리로 서버 사이드 페이지네이션을 수행합니다.
+ * "use cache" + cacheLife("minutes")로 60초 revalidation 캐싱이 적용됩니다.
+ * 카테고리 슬러그가 주어지면 해당 카테고리의 포스트만 필터링합니다.
  *
  * @param options - 카테고리, 태그, 페이지, 개수 등 필터 옵션
  * @returns 포스트 목록과 전체 개수
@@ -54,7 +51,13 @@ export async function getPublishedPosts(options?: {
   page?: number;
   limit?: number;
 }): Promise<{ data: PostListItem[] | null; count: number | null }> {
-  const supabase = await getSupabase();
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("posts");
+
+  const supabase = createReadOnlyClient();
+  if (!supabase) return { data: null, count: null };
+
   const page = options?.page ?? 1;
   const limit = options?.limit ?? 10;
   const offset = (page - 1) * limit;
@@ -100,7 +103,7 @@ export async function getPublishedPosts(options?: {
 /**
  * 슬러그로 단일 포스트를 상세 조회합니다.
  *
- * 카테고리/태그 관계 데이터를 포함하여 반환합니다.
+ * "use cache" + cacheLife("minutes")로 캐싱이 적용됩니다.
  *
  * @param _category - 카테고리 슬러그 (라우팅용, 쿼리에는 미사용)
  * @param slug - 포스트 슬러그
@@ -110,7 +113,12 @@ export async function getPost(
   _category: string,
   slug: string
 ): Promise<{ data: PostDetail | null }> {
-  const supabase = await getSupabase();
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("posts");
+
+  const supabase = createReadOnlyClient();
+  if (!supabase) return { data: null };
 
   const { data } = await supabase
     .from("posts")
@@ -130,14 +138,19 @@ export async function getPost(
 /**
  * 추천(Featured) 포스트 최대 3개를 조회합니다.
  *
- * 홈 페이지 상단 Featured 섹션에 표시됩니다.
+ * "use cache" + cacheLife("minutes")로 캐싱이 적용됩니다.
  *
  * @returns 추천 포스트 목록
  */
 export async function getFeaturedPosts(): Promise<{
   data: PostListItem[] | null;
 }> {
-  const supabase = await getSupabase();
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("posts");
+
+  const supabase = createReadOnlyClient();
+  if (!supabase) return { data: null };
 
   const { data } = await supabase
     .from("posts")
@@ -160,14 +173,19 @@ export async function getFeaturedPosts(): Promise<{
 /**
  * 전체 카테고리 목록을 정렬 순서대로 조회합니다.
  *
- * 네비게이션, 카테고리 필터 등에 사용됩니다.
+ * "use cache" + cacheLife("hours")로 장기 캐싱이 적용됩니다.
  *
  * @returns 카테고리 목록
  */
 export async function getCategories(): Promise<{
   data: CategoryItem[] | null;
 }> {
-  const supabase = await getSupabase();
+  "use cache";
+  cacheLife("hours");
+  cacheTag("categories");
+
+  const supabase = createReadOnlyClient();
+  if (!supabase) return { data: null };
 
   const { data } = await supabase
     .from("categories")
@@ -180,6 +198,7 @@ export async function getCategories(): Promise<{
 /**
  * 발행된 모든 포스트의 슬러그와 카테고리 정보를 조회합니다.
  *
+ * "use cache" + cacheLife("hours")로 장기 캐싱이 적용됩니다.
  * sitemap.ts에서 동적 URL 생성에 사용됩니다.
  *
  * @returns 슬러그 목록
@@ -187,7 +206,12 @@ export async function getCategories(): Promise<{
 export async function getAllPublishedSlugs(): Promise<{
   data: SlugItem[] | null;
 }> {
-  const supabase = await getSupabase();
+  "use cache";
+  cacheLife("hours");
+  cacheTag("posts");
+
+  const supabase = createReadOnlyClient();
+  if (!supabase) return { data: null };
 
   const { data } = await supabase
     .from("posts")
@@ -200,13 +224,13 @@ export async function getAllPublishedSlugs(): Promise<{
 /**
  * 포스트 조회수를 1 증가시킵니다.
  *
- * Supabase RPC 함수 `increment_view_count`를 호출하며,
- * 클라이언트의 ViewCounter 컴포넌트에서 포스트 로드 시 호출됩니다.
+ * SECURITY DEFINER RPC로 권한 무관하게 동작합니다.
+ * 캐싱 대상이 아닙니다 (쓰기 작업).
  *
  * @param postId - 조회수를 증가시킬 포스트 ID
  */
 export async function incrementViewCount(postId: string): Promise<void> {
-  const supabase = await getSupabase();
+  const supabase = await createClient();
   // @ts-expect-error - increment_view_count RPC가 Database 타입에 미포함 (pnpm db:generate로 해결 가능)
   await supabase.rpc("increment_view_count", { p_post_id: postId });
 }
