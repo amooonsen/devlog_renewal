@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { incrementViewCount } from "@/lib/posts";
 
+/**
+ * 포스트 조회수를 증가시킵니다.
+ *
+ * 클라이언트 ViewCounter 컴포넌트에서 포스트 로드 시 호출되며,
+ * Supabase RPC로 원자적 증가를 수행합니다.
+ */
 export async function POST(
   _request: Request,
   { params }: { params: Promise<{ postId: string }> }

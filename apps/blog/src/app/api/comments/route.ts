@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase";
 
+/**
+ * 새 댓글을 작성합니다.
+ *
+ * 요청 본문에 post_id, author_name, content, password가 필수이며,
+ * parent_id를 지정하면 대댓글로 등록됩니다.
+ * 새 댓글은 미승인 상태(is_approved=false)로 생성됩니다.
+ */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -54,6 +61,11 @@ export async function POST(request: Request) {
   }
 }
 
+/**
+ * 비밀번호 확인 후 댓글을 삭제합니다.
+ *
+ * 작성 시 입력한 비밀번호와 일치해야 삭제가 가능합니다.
+ */
 export async function DELETE(request: Request) {
   try {
     const body = await request.json();

@@ -13,12 +13,14 @@ import type {
 // Posts
 // ──────────────────────────────────────
 
+/** 포스트 목록 필터 옵션 */
 export interface PostFilter {
   status?: PostStatus;
   page?: number;
   perPage?: number;
 }
 
+/** 포스트 작성/수정 폼 데이터 */
 export interface PostFormData {
   title: string;
   slug: string;
@@ -32,6 +34,15 @@ export interface PostFormData {
   published_at?: string;
 }
 
+/**
+ * 포스트 목록을 필터링하여 페이지네이션 조회합니다.
+ *
+ * 카테고리, 태그 관계를 조인하여 반환하며,
+ * post_tags 중간 테이블을 tags 배열로 평탄화합니다.
+ *
+ * @param filter - 상태, 페이지, 페이지당 개수 필터
+ * @returns 포스트 목록과 전체 개수
+ */
 export async function fetchPosts(filter?: PostFilter) {
   const page = filter?.page ?? 1;
   const perPage = filter?.perPage ?? 20;
@@ -51,7 +62,7 @@ export async function fetchPosts(filter?: PostFilter) {
   const { data, error, count } = await query;
   if (error) throw error;
 
-  // post_tags 관계를 tags 배열로 변환
+  // post_tags 관계를 tags 배열로 평탄화
   const posts: PostWithRelations[] = (data ?? []).map((post) => ({
     ...post,
     category: post.categories,
@@ -61,7 +72,13 @@ export async function fetchPosts(filter?: PostFilter) {
   return { posts, total: count ?? 0 };
 }
 
-export async function fetchPost(id: string) {
+/**
+ * ID로 단일 포스트를 상세 조회합니다.
+ *
+ * @param id - 포스트 UUID
+ * @returns 카테고리/태그를 포함한 포스트 상세 데이터
+ */
+export async function fetchPost(id: string): Promise<PostWithRelations> {
   const { data, error } = await supabase
     .from("posts")
     .select("*, categories(*), post_tags(tags(*))")
@@ -70,15 +87,23 @@ export async function fetchPost(id: string) {
 
   if (error) throw error;
 
-  const post: PostWithRelations = {
+  return {
     ...data,
     category: data.categories,
     tags: data.post_tags?.map((pt: { tags: Tag }) => pt.tags) ?? [],
   };
-  return post;
 }
 
-export async function createPost(formData: PostFormData) {
+/**
+ * 새 포스트를 생성합니다.
+ *
+ * 발행(published) 상태이고 published_at이 미지정이면 현재 시각으로 자동 설정됩니다.
+ * 태그 연결은 post_tags 중간 테이블에 별도 삽입합니다.
+ *
+ * @param formData - 포스트 폼 데이터 (태그 ID 배열 포함)
+ * @returns 생성된 포스트
+ */
+export async function createPost(formData: PostFormData): Promise<Post> {
   const { tag_ids, ...postData } = formData;
 
   // 발행 시 published_at 자동 설정
@@ -109,7 +134,20 @@ export async function createPost(formData: PostFormData) {
   return data as Post;
 }
 
-export async function updatePost(id: string, formData: PostFormData) {
+/**
+ * 기존 포스트를 수정합니다.
+ *
+ * updated_at을 현재 시각으로 갱신하며,
+ * 태그는 기존 연결을 전부 삭제 후 재삽입하는 전략입니다.
+ *
+ * @param id - 수정할 포스트 UUID
+ * @param formData - 포스트 폼 데이터
+ * @returns 수정된 포스트
+ */
+export async function updatePost(
+  id: string,
+  formData: PostFormData
+): Promise<Post> {
   const { tag_ids, ...postData } = formData;
 
   const { data, error } = await supabase
@@ -142,8 +180,14 @@ export async function updatePost(id: string, formData: PostFormData) {
   return data as Post;
 }
 
-export async function deletePost(id: string) {
-  // archived 상태로 변경 (소프트 삭제)
+/**
+ * 포스트를 소프트 삭제합니다 (archived 상태로 변경).
+ *
+ * 실제 DB 행을 삭제하지 않고 status를 archived로 변경합니다.
+ *
+ * @param id - 삭제할 포스트 UUID
+ */
+export async function deletePost(id: string): Promise<void> {
   const { error } = await supabase
     .from("posts")
     .update({ status: "archived" as PostStatus })
@@ -156,7 +200,12 @@ export async function deletePost(id: string) {
 // Categories
 // ──────────────────────────────────────
 
-export async function fetchCategories() {
+/**
+ * 전체 카테고리 목록을 정렬 순서대로 조회합니다.
+ *
+ * @returns 카테고리 배열
+ */
+export async function fetchCategories(): Promise<Category[]> {
   const { data, error } = await supabase
     .from("categories")
     .select("*")
@@ -170,7 +219,12 @@ export async function fetchCategories() {
 // Tags
 // ──────────────────────────────────────
 
-export async function fetchTags() {
+/**
+ * 전체 태그 목록을 이름순으로 조회합니다.
+ *
+ * @returns 태그 배열
+ */
+export async function fetchTags(): Promise<Tag[]> {
   const { data, error } = await supabase
     .from("tags")
     .select("*")
@@ -184,16 +238,26 @@ export async function fetchTags() {
 // Comments
 // ──────────────────────────────────────
 
+/** 댓글 목록 필터 옵션 */
 export interface CommentFilter {
   isApproved?: boolean;
   page?: number;
   perPage?: number;
 }
 
+/** 포스트 정보를 포함한 댓글 타입 */
 export type CommentWithPost = Comment & {
   posts: { title: string; slug: string } | null;
 };
 
+/**
+ * 댓글 목록을 필터링하여 페이지네이션 조회합니다.
+ *
+ * 연관된 포스트의 제목과 슬러그를 조인하여 반환합니다.
+ *
+ * @param filter - 승인 상태, 페이지, 페이지당 개수 필터
+ * @returns 댓글 목록과 전체 개수
+ */
 export async function fetchComments(filter?: CommentFilter) {
   const page = filter?.page ?? 1;
   const perPage = filter?.perPage ?? 20;
@@ -215,7 +279,12 @@ export async function fetchComments(filter?: CommentFilter) {
   return { comments: (data ?? []) as CommentWithPost[], total: count ?? 0 };
 }
 
-export async function approveComment(id: number) {
+/**
+ * 댓글을 승인 처리합니다.
+ *
+ * @param id - 승인할 댓글 ID
+ */
+export async function approveComment(id: number): Promise<void> {
   const { error } = await supabase
     .from("comments")
     .update({ is_approved: true })
@@ -224,7 +293,12 @@ export async function approveComment(id: number) {
   if (error) throw error;
 }
 
-export async function rejectComment(id: number) {
+/**
+ * 댓글을 거부 처리합니다 (승인 취소).
+ *
+ * @param id - 거부할 댓글 ID
+ */
+export async function rejectComment(id: number): Promise<void> {
   const { error } = await supabase
     .from("comments")
     .update({ is_approved: false })
@@ -233,7 +307,12 @@ export async function rejectComment(id: number) {
   if (error) throw error;
 }
 
-export async function deleteComment(id: number) {
+/**
+ * 댓글을 영구 삭제합니다.
+ *
+ * @param id - 삭제할 댓글 ID
+ */
+export async function deleteComment(id: number): Promise<void> {
   const { error } = await supabase.from("comments").delete().eq("id", id);
   if (error) throw error;
 }
@@ -242,12 +321,19 @@ export async function deleteComment(id: number) {
 // Contacts
 // ──────────────────────────────────────
 
+/** 문의 목록 필터 옵션 */
 export interface ContactFilter {
   isRead?: boolean;
   page?: number;
   perPage?: number;
 }
 
+/**
+ * 문의 목록을 필터링하여 페이지네이션 조회합니다.
+ *
+ * @param filter - 읽음 상태, 페이지, 페이지당 개수 필터
+ * @returns 문의 목록과 전체 개수
+ */
 export async function fetchContacts(filter?: ContactFilter) {
   const page = filter?.page ?? 1;
   const perPage = filter?.perPage ?? 20;
@@ -269,7 +355,12 @@ export async function fetchContacts(filter?: ContactFilter) {
   return { contacts: (data ?? []) as Contact[], total: count ?? 0 };
 }
 
-export async function markContactAsRead(id: number) {
+/**
+ * 문의를 읽음 처리합니다.
+ *
+ * @param id - 읽음 처리할 문의 ID
+ */
+export async function markContactAsRead(id: number): Promise<void> {
   const { error } = await supabase
     .from("contacts")
     .update({ is_read: true })
@@ -282,6 +373,7 @@ export async function markContactAsRead(id: number) {
 // Dashboard
 // ──────────────────────────────────────
 
+/** 대시보드 통계 데이터 타입 */
 export interface DashboardStats {
   totalPosts: number;
   publishedPosts: number;
@@ -291,6 +383,14 @@ export interface DashboardStats {
   unreadContacts: number;
 }
 
+/**
+ * 대시보드 통계를 병렬로 조회합니다.
+ *
+ * 6개의 count 쿼리를 Promise.all로 동시 실행하여
+ * 포스트/댓글/문의의 각종 상태별 개수를 집계합니다.
+ *
+ * @returns 대시보드 통계 데이터
+ */
 export async function fetchDashboardStats(): Promise<DashboardStats> {
   const [posts, published, drafts, comments, pendingComments, unreadContacts] =
     await Promise.all([
@@ -324,7 +424,15 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
   };
 }
 
-export async function fetchRecentComments() {
+/**
+ * 최근 댓글 5개를 조회합니다.
+ *
+ * 대시보드 최근 활동 섹션에 표시되며,
+ * 연관 포스트의 제목과 슬러그를 포함합니다.
+ *
+ * @returns 최근 댓글 목록
+ */
+export async function fetchRecentComments(): Promise<CommentWithPost[]> {
   const { data, error } = await supabase
     .from("comments")
     .select("*, posts(title, slug)")
@@ -339,9 +447,18 @@ export async function fetchRecentComments() {
 // Thumbnail Upload
 // ──────────────────────────────────────
 
+/**
+ * 썸네일 이미지를 Supabase Storage에 업로드합니다.
+ *
+ * 파일명에 타임스탬프와 UUID를 조합하여 충돌을 방지하며,
+ * 업로드 후 공개 URL을 반환합니다.
+ *
+ * @param file - 업로드할 이미지 파일
+ * @returns 업로드된 이미지의 공개 URL
+ */
 export async function uploadThumbnail(file: File): Promise<string> {
   const ext = file.name.split(".").pop();
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const fileName = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
   const filePath = `thumbnails/${fileName}`;
 
   const { error } = await supabase.storage
@@ -361,6 +478,15 @@ export async function uploadThumbnail(file: File): Promise<string> {
 // Slug validation
 // ──────────────────────────────────────
 
+/**
+ * 포스트 슬러그의 사용 가능 여부를 확인합니다.
+ *
+ * 수정 시에는 자기 자신을 제외하고 중복 검사를 수행합니다.
+ *
+ * @param slug - 확인할 슬러그
+ * @param excludeId - 수정 시 제외할 포스트 ID
+ * @returns 사용 가능하면 true
+ */
 export async function checkSlugAvailability(
   slug: string,
   excludeId?: string

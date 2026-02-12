@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+/** 포스트 작성/수정 폼 검증 스키마 */
 export const postSchema = z.object({
   title: z.string().min(1, "제목을 입력하세요").max(200, "제목은 200자 이내"),
   slug: z
@@ -17,8 +18,10 @@ export const postSchema = z.object({
   published_at: z.string().optional().or(z.literal("")),
 });
 
+/** 포스트 폼 데이터 타입 (postSchema 기반 추론) */
 export type PostSchemaValues = z.infer<typeof postSchema>;
 
+/** 관리자 로그인 폼 검증 스키마 */
 export const loginSchema = z.object({
   email: z
     .string()
@@ -27,4 +30,5 @@ export const loginSchema = z.object({
   password: z.string().min(1, "비밀번호를 입력해주세요."),
 });
 
+/** 로그인 폼 데이터 타입 (loginSchema 기반 추론) */
 export type LoginFormValues = z.infer<typeof loginSchema>;

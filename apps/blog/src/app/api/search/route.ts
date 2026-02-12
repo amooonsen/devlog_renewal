@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase";
 import { matchesKoreanSearch } from "@/lib/search";
 
+/**
+ * 포스트 검색 API입니다.
+ *
+ * 쿼리 파라미터 `q`로 검색어를 받아, 발행된 포스트 최대 50개를 조회한 뒤
+ * es-hangul 기반 한글 퍼지 검색(초성/자모)으로 필터링하여 최대 20개를 반환합니다.
+ */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("q");
