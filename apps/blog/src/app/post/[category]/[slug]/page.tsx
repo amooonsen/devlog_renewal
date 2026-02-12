@@ -4,12 +4,12 @@ import dayjs from "dayjs";
 import { notFound } from "next/navigation";
 import { getPost } from "@/lib/posts";
 import { getCommentsByPost } from "@/lib/comments";
-import { renderMDX } from "@/lib/mdx";
+import { renderMDX, extractHeadings } from "@/lib/mdx";
 import { CommentSection } from "@/components/comment/CommentSection";
 import { ViewCounter } from "@/components/post/ViewCounter";
-
-// 빌드 시 cookies() 사용 불가하므로 동적 렌더링
-export const dynamic = "force-dynamic";
+import { TableOfContents } from "@/components/post/TableOfContents";
+import { ScrollToTop } from "@/components/common/ScrollToTop";
+import { calculateReadTime, formatReadTime } from "@/lib/readTime";
 
 interface Props {
   params: Promise<{ category: string; slug: string }>;
@@ -51,11 +51,32 @@ export default async function PostDetailPage({ params }: Props) {
   // 댓글은 post.id로 조회
   const { data: comments } = await getCommentsByPost(post.id);
 
-  // MDX 렌더링
+  // MDX 렌더링 및 TOC 추출
   const content = await renderMDX(post.content);
+  const headings = extractHeadings(post.content);
+
+  // 읽기 시간 계산
+  const readTime = calculateReadTime(post.content);
 
   return (
-    <article className="mx-auto max-w-3xl">
+    <div className="relative mx-auto max-w-7xl">
+      {/* TOC - 데스크톱 우측 고정 */}
+      {headings.length > 0 && (
+        <aside className="fixed left-[calc(50%+400px)] top-24 hidden w-64 xl:block">
+          <div className="sticky top-24">
+            <TableOfContents headings={headings} />
+          </div>
+        </aside>
+      )}
+
+      <article className="mx-auto max-w-3xl">
+      {/* 모바일 TOC */}
+      {headings.length > 0 && (
+        <div className="mb-8 rounded-lg border border-border bg-card p-6 xl:hidden">
+          <TableOfContents headings={headings} />
+        </div>
+      )}
+
       {/* 헤더 */}
       <header className="space-y-4 border-b border-border pb-8">
         <div className="flex items-center gap-2 text-sm">
@@ -76,6 +97,10 @@ export default async function PostDetailPage({ params }: Props) {
           <span className="text-muted-foreground">·</span>
           <span className="text-muted-foreground">
             조회 {post.view_count}
+          </span>
+          <span className="text-muted-foreground">·</span>
+          <span className="text-muted-foreground">
+            {formatReadTime(readTime)}
           </span>
         </div>
 
@@ -123,5 +148,9 @@ export default async function PostDetailPage({ params }: Props) {
         comments={comments ?? []}
       />
     </article>
+
+    {/* 맨 위로 버튼 */}
+    <ScrollToTop />
+  </div>
   );
 }
