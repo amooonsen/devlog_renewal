@@ -6,15 +6,6 @@
   "outputDirectory": "dist",
   "installCommand": "cd ../.. && pnpm install",
   "ignoreCommand": "git diff --quiet HEAD^ HEAD apps/admin/ packages/",
-  "env": {
-    "VITE_SUPABASE_URL": "@supabase-url",
-    "VITE_SUPABASE_ANON_KEY": "@supabase-anon-key"
-  },
-  "build": {
-    "env": {
-      "NODE_ENV": "production"
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
