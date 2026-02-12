@@ -16,12 +16,12 @@
 
 ## Project Status
 
-**현재 단계**: Phase 1 - 프로젝트 초기화 (모노레포 세팅 전)
-- [x] 프로젝트 분석 완료 (PROJECT_ANALYSIS.md)
+**현재 단계**: Phase 2 완료, Phase 3 완료
+- [x] 프로젝트 분석 완료
 - [x] 시스템 설계 완료 (DESIGN.md)
-- [ ] Phase 1: 모노레포 + Supabase + 공유 패키지 초기화
-- [ ] Phase 2: Blog 앱 기본 구조
-- [ ] Phase 3: Admin 앱
+- [x] Phase 1: 모노레포 + Supabase + 공유 패키지 초기화
+- [x] Phase 2: Blog 앱 기본 구조
+- [x] Phase 3: Admin 앱
 - [ ] Phase 4: 마무리 및 배포
 
 ## Key Decisions (v1 → v2 변경)
@@ -64,7 +64,6 @@
 | 문서 | 경로 | 내용 |
 |------|------|------|
 | 전체 설계서 | `DESIGN.md` | 상세 시스템 설계 (specs/의 원본) |
-| v1 분석 | `PROJECT_ANALYSIS.md` | 이전 버전 분석 및 마이그레이션 가이드 |
 
 ## Dev Commands
 

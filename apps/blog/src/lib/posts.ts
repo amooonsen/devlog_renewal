@@ -9,8 +9,6 @@ async function getSupabase() {
 // Supabase 생성 타입 활용
 type Post = Database["public"]["Tables"]["posts"]["Row"];
 type Category = Database["public"]["Tables"]["categories"]["Row"];
-type Tag = Database["public"]["Tables"]["tags"]["Row"];
-
 // 조인 쿼리 결과 타입
 interface PostListItem {
   id: string;

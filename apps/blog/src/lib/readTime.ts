@@ -6,7 +6,7 @@
  */
 export function calculateReadTime(content: string): number {
   // MDX/Markdown 문법 제거
-  let text = content
+  const text = content
     // 코드 블록 제거 (단, 코드는 읽기 속도가 느리므로 가중치 적용)
     .replace(/```[\s\S]*?```/g, (match) => {
       // 코드 블록은 일반 텍스트보다 2배 느리게 읽음
