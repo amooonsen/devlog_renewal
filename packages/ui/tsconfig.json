@@ -1,7 +1,8 @@
 {
   "extends": "@repo/typescript-config/react-vite.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    "jsx": "react"
   },
   "include": ["src"]
 }

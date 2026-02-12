@@ -12,6 +12,12 @@ out/
 .env
 .env.local
 .env.*.local
+.env.development
+.env.*.development
+.env.preview
+.env.*.preview
+.env.production
+.env.*.production
 
 # IDE
 .vscode/
@@ -32,6 +38,9 @@ yarn-error.log*
 
 # Testing
 coverage/
+
+# Design(Pencil)
+.design/
 
 # Misc
 *.tsbuildinfo
