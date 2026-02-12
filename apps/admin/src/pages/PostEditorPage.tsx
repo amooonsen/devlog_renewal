@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useForm, Controller, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import MDEditor from "@uiw/react-md-editor";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, AlertCircle, CheckCircle } from "lucide-react";
 import {
   Badge,
   Button,
@@ -33,11 +33,14 @@ import {
 } from "@/hooks/usePosts";
 import { postSchema, type PostSchemaValues } from "@/lib/schemas";
 import { ThumbnailUploader } from "@/components/post/ThumbnailUploader";
+import { checkSlugAvailability } from "@/lib/api";
 
 export function PostEditorPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isEdit = !!id;
+  const [slugChecking, setSlugChecking] = useState(false);
+  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
 
   const { data: existingPost, isLoading: postLoading } = usePost(id);
   const { data: categories = [] } = useCategories();
@@ -101,7 +104,36 @@ export function PostEditorPage() {
     }
   }, [title, isEdit, setValue]);
 
+  // 슬러그 중복 검증 (디바운스)
+  const slug = watch("slug");
+  useEffect(() => {
+    if (!slug) {
+      setSlugAvailable(null);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setSlugChecking(true);
+      try {
+        const available = await checkSlugAvailability(slug, id);
+        setSlugAvailable(available);
+      } catch {
+        setSlugAvailable(null);
+      } finally {
+        setSlugChecking(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [slug, id]);
+
   const onSubmit = async (data: PostSchemaValues) => {
+    // 슬러그 중복 검증
+    if (!isEdit && slugAvailable === false) {
+      toast.error("이미 사용 중인 슬러그입니다.");
+      return;
+    }
+
     try {
       if (isEdit) {
         await updatePost.mutateAsync({ id, data });
@@ -161,15 +193,39 @@ export function PostEditorPage() {
             {/* 슬러그 */}
             <div className="space-y-2">
               <Label htmlFor="slug">슬러그</Label>
-              <Input
-                id="slug"
-                placeholder="post-url-slug"
-                {...register("slug")}
-              />
+              <div className="relative">
+                <Input
+                  id="slug"
+                  placeholder="post-url-slug"
+                  {...register("slug")}
+                  className={
+                    slugAvailable === false ? "border-destructive" : ""
+                  }
+                />
+                {slugChecking && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  </div>
+                )}
+                {!slugChecking && slugAvailable === true && (
+                  <CheckCircle className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-green-500" />
+                )}
+                {!slugChecking && slugAvailable === false && (
+                  <AlertCircle className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-destructive" />
+                )}
+              </div>
               {errors.slug && (
                 <p className="text-sm text-destructive">
                   {errors.slug.message}
                 </p>
+              )}
+              {!errors.slug && slugAvailable === false && (
+                <p className="text-sm text-destructive">
+                  이미 사용 중인 슬러그입니다.
+                </p>
+              )}
+              {!errors.slug && slugAvailable === true && (
+                <p className="text-sm text-green-600">사용 가능한 슬러그입니다.</p>
               )}
             </div>
 
@@ -262,13 +318,33 @@ export function PostEditorPage() {
                   />
                 </div>
 
+                {/* 발행 날짜 */}
+                {watch("status") === "published" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="published_at">발행 날짜</Label>
+                    <Input
+                      id="published_at"
+                      type="datetime-local"
+                      {...register("published_at")}
+                      placeholder="비워두면 현재 시간"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      비워두면 현재 시간으로 자동 설정됩니다.
+                    </p>
+                  </div>
+                )}
+
                 <Separator />
 
                 {/* 저장 버튼 */}
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={isSubmitting}
+                  disabled={
+                    isSubmitting ||
+                    slugChecking ||
+                    (!isEdit && slugAvailable === false)
+                  }
                 >
                   <Save className="mr-2 h-4 w-4" />
                   {isSubmitting ? "저장 중..." : isEdit ? "수정" : "저장"}
@@ -282,27 +358,33 @@ export function PostEditorPage() {
                 <CardTitle className="text-base">카테고리</CardTitle>
               </CardHeader>
               <CardContent>
-                <Controller
-                  name="category_id"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      value={field.value ? String(field.value) : ""}
-                      onValueChange={(val) => field.onChange(Number(val))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="카테고리 선택" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((cat) => (
-                          <SelectItem key={cat.id} value={String(cat.id)}>
-                            {cat.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
+                {categories.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    카테고리를 먼저 생성해주세요.
+                  </p>
+                ) : (
+                  <Controller
+                    name="category_id"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value ? String(field.value) : ""}
+                        onValueChange={(val) => field.onChange(Number(val))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="카테고리 선택" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat.id} value={String(cat.id)}>
+                              {cat.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                )}
                 {errors.category_id && (
                   <p className="mt-1 text-sm text-destructive">
                     {errors.category_id.message}

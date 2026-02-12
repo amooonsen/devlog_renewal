@@ -356,3 +356,24 @@ export async function uploadThumbnail(file: File): Promise<string> {
 
   return publicUrl;
 }
+
+// ──────────────────────────────────────
+// Slug validation
+// ──────────────────────────────────────
+
+export async function checkSlugAvailability(
+  slug: string,
+  excludeId?: string
+): Promise<boolean> {
+  let query = supabase.from("posts").select("id").eq("slug", slug);
+
+  if (excludeId) {
+    query = query.neq("id", excludeId);
+  }
+
+  const { data, error } = await query;
+
+  if (error) throw error;
+
+  return (data?.length ?? 0) === 0;
+}
