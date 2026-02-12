@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { CommentList } from "./CommentList";
-import { CommentForm } from "./CommentForm";
+import {useState} from "react";
+import {CommentList} from "./CommentList";
+import {CommentForm} from "./CommentForm";
+import {useRouter} from "next/navigation";
 
 interface Comment {
   id: number;
@@ -18,13 +19,15 @@ interface CommentSectionProps {
   comments: Comment[];
 }
 
-export function CommentSection({ postId, comments: initialComments }: CommentSectionProps) {
+export function CommentSection({postId, comments: initialComments}: CommentSectionProps) {
   const [comments, setComments] = useState(initialComments);
   const [replyTo, setReplyTo] = useState<number | null>(null);
 
+  const router = useRouter();
+
   const handleCommentAdded = () => {
     // 댓글 작성 후 새로고침으로 최신 목록 반영
-    window.location.reload();
+    router.refresh();
   };
 
   const handleCommentDeleted = (commentId: number) => {
@@ -41,11 +44,7 @@ export function CommentSection({ postId, comments: initialComments }: CommentSec
         댓글 {comments.length > 0 && `(${comments.length})`}
       </h2>
 
-      <CommentForm
-        postId={postId}
-        parentId={null}
-        onSuccess={handleCommentAdded}
-      />
+      <CommentForm postId={postId} parentId={null} onSuccess={handleCommentAdded} />
 
       {rootComments.length > 0 ? (
         <CommentList
