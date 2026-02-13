@@ -1,16 +1,12 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site";
-
-// sitemap은 빌드 시 정적 생성이므로 cookies() 기반 Supabase 사용 불가
-// 런타임에서만 동적 포스트 URL을 생성
-export const dynamic = "force-dynamic";
+import { getAllPublishedSlugs, getCategories } from "@/lib/posts";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let posts: { slug: string; updated_at: string; categories: { slug: string } | null }[] = [];
   let categories: { slug: string }[] = [];
 
   try {
-    const { getAllPublishedSlugs, getCategories } = await import("@/lib/posts");
     const [postsResult, categoriesResult] = await Promise.all([
       getAllPublishedSlugs(),
       getCategories(),
@@ -18,7 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     posts = postsResult.data ?? [];
     categories = categoriesResult.data ?? [];
   } catch {
-    // 빌드 시 Supabase 접근 실패 시 기본 정적 URL만 반환
+    // Supabase 접근 실패 시 기본 정적 URL만 반환
   }
 
   const postEntries: MetadataRoute.Sitemap = posts.map((post) => ({

@@ -2,6 +2,58 @@
 -- Seed Data for Development
 -- =============================================================
 
+-- =============================================================
+-- Admin 유저 생성 (로컬 개발 전용)
+-- Email: admin@devlog.local / Password: admin123
+-- app_metadata.role = 'admin' → RLS is_admin() 함수에서 사용
+-- =============================================================
+INSERT INTO auth.users (
+  instance_id, id, aud, role, email, encrypted_password,
+  email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+  created_at, updated_at, confirmation_token,
+  email_change, email_change_token_new, recovery_token
+) VALUES (
+  '00000000-0000-0000-0000-000000000000',
+  'a0000000-0000-0000-0000-000000000001',
+  'authenticated',
+  'authenticated',
+  'admin@devlog.local',
+  crypt('admin123', gen_salt('bf')),
+  now(),
+  '{"provider":"email","providers":["email"],"role":"admin"}'::jsonb,
+  '{"name":"Admin"}'::jsonb,
+  now(), now(), '', '', '', ''
+) ON CONFLICT (id) DO NOTHING;
+
+-- auth.identities 엔트리 (Supabase Auth 로그인에 필요)
+INSERT INTO auth.identities (
+  id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at
+) VALUES (
+  'a0000000-0000-0000-0000-000000000001',
+  'a0000000-0000-0000-0000-000000000001',
+  'admin@devlog.local',
+  '{"sub":"a0000000-0000-0000-0000-000000000001","email":"admin@devlog.local"}'::jsonb,
+  'email',
+  now(), now(), now()
+) ON CONFLICT (id, provider) DO NOTHING;
+
+-- 기존 admin 유저가 있으면 app_metadata에 role 추가
+-- (Supabase Dashboard에서 유저를 생성한 경우)
+UPDATE auth.users
+SET raw_app_meta_data = raw_app_meta_data || '{"role": "admin"}'::jsonb
+WHERE email = 'admin@devlog.local'
+  AND NOT (raw_app_meta_data ? 'role');
+
+-- =============================================================
+-- 프로덕션 Admin 계정 권한 부여
+-- newabekar@naver.com에 admin role 부여
+-- Supabase Dashboard 또는 Auth로 가입한 유저에 대해 role 추가
+-- =============================================================
+UPDATE auth.users
+SET raw_app_meta_data = raw_app_meta_data || '{"role": "admin"}'::jsonb
+WHERE email = 'newabekar@naver.com'
+  AND (NOT (raw_app_meta_data ? 'role') OR raw_app_meta_data ->> 'role' != 'admin');
+
 -- Categories
 INSERT INTO categories (name, slug, description, sort_order) VALUES
   ('Tech', 'tech', '기술 관련 포스트', 1),

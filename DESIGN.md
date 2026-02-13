@@ -24,7 +24,7 @@
 | 캐싱 | 암시적 | `"use cache"` 명시적 캐싱 |
 | 타입 안전성 | ignoreBuildErrors: true | 엄격한 TypeScript |
 
-### 1.3 이전 버전 주요 개선 대상 (PROJECT_ANALYSIS.md 기반)
+### 1.3 이전 버전 주요 개선 대상
 - **제거**: Repository 패턴 오버엔지니어링, 주석 처리된 코드 ~1000줄, 미사용 의존성
 - **수정**: TypeScript 빌드 에러 무시, ESLint 규칙 비활성화, 하드코딩된 값들
 - **개선**: 3단 라우팅 → 2단 간소화, 데이터 레이어 단일화, 상수 파일 통합

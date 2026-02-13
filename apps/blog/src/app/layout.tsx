@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { siteConfig } from "@/config/site";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { Header } from "@/components/layout/Header";
@@ -37,7 +37,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">
               {children}
             </main>
-            <Footer />
+            <Suspense>
+              <Footer />
+            </Suspense>
           </div>
         </ThemeProvider>
       </body>

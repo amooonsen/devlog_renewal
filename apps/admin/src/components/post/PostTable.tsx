@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import dayjs from "dayjs";
+import { formatDate } from "@repo/date-utils";
 import { Pencil, Trash2, Eye } from "lucide-react";
 import {
   Table,
@@ -67,7 +67,7 @@ export function PostTable({ posts, onDelete }: PostTableProps) {
               </span>
             </TableCell>
             <TableCell className="text-muted-foreground">
-              {dayjs(post.created_at).format("YYYY.MM.DD")}
+              {formatDate(post.created_at)}
             </TableCell>
             <TableCell className="text-right">
               <div className="flex justify-end gap-1">

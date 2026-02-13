@@ -10,7 +10,7 @@ importers:
     dependencies:
       next:
         specifier: ^16.1.6
-        version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 16.1.6(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
     devDependencies:
       turbo:
         specifier: ^2
@@ -24,6 +24,9 @@ importers:
       '@repo/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@repo/date-utils':
+        specifier: workspace:*
+        version: link:../../packages/date-utils
       '@repo/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -39,9 +42,6 @@ importers:
       '@uiw/react-md-editor':
         specifier: ^4.0.11
         version: 4.0.11(@types/react@19.2.13)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      dayjs:
-        specifier: ^1.11
-        version: 1.11.19
       es-hangul:
         specifier: ^2.3.8
         version: 2.3.8
@@ -106,6 +106,9 @@ importers:
       '@repo/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@repo/date-utils':
+        specifier: workspace:*
+        version: link:../../packages/date-utils
       '@repo/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -118,15 +121,15 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2
         version: 2.95.3
-      dayjs:
-        specifier: ^1.11
-        version: 1.11.19
       es-hangul:
         specifier: ^2.3.8
         version: 2.3.8
+      lucide-react:
+        specifier: ^0.563.0
+        version: 0.563.0(react@19.2.4)
       next:
         specifier: ^16
-        version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 16.1.6(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       next-mdx-remote:
         specifier: ^5
         version: 5.0.0(@types/react@19.2.14)(react@19.2.4)
@@ -142,9 +145,15 @@ importers:
       react-hook-form:
         specifier: ^7.71.1
         version: 7.71.1(react@19.2.4)
+      rehype-autolink-headings:
+        specifier: ^7.1.0
+        version: 7.1.0
       rehype-pretty-code:
         specifier: ^0.14
         version: 0.14.1(shiki@3.22.0)
+      rehype-slug:
+        specifier: ^6.0.0
+        version: 6.0.0
       shiki:
         specifier: ^3
         version: 3.22.0
@@ -173,6 +182,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.14)
+      babel-plugin-react-compiler:
+        specifier: ^1.0.0
+        version: 1.0.0
       eslint:
         specifier: ^9
         version: 9.39.2(jiti@2.6.1)
@@ -188,12 +200,15 @@ importers:
 
   packages/database:
     dependencies:
-      '@supabase/ssr':
-        specifier: ^0.6
-        version: 0.6.1(@supabase/supabase-js@2.95.3)
       '@supabase/supabase-js':
         specifier: ^2
         version: 2.95.3
+
+  packages/date-utils:
+    dependencies:
+      dayjs:
+        specifier: ^1.11
+        version: 1.11.19
 
   packages/eslint-config:
     dependencies:
@@ -216,7 +231,11 @@ importers:
         specifier: ^8
         version: 8.55.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
 
-  packages/types: {}
+  packages/types:
+    dependencies:
+      '@repo/database':
+        specifier: workspace:*
+        version: link:../database
 
   packages/typescript-config: {}
 
@@ -1730,6 +1749,9 @@ packages:
   available-typed-arrays@1.0.7:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
+
+  babel-plugin-react-compiler@1.0.0:
+    resolution: {integrity: sha512-Ixm8tFfoKKIPYdCCKYTsqv+Fd4IJ0DQqMyEimo+pxUOMUR9cVPlwTrFt9Avu+3cb6Zp3mAzl+t1MrG2fxxKsxw==}
 
   bail@2.0.2:
     resolution: {integrity: sha512-0xO6mYd7JB2YesxDKplafRpsiOzPt9V02ddPCLbY1xYGPOX24NTyN50qnUxgCPcSoYMhKpAuBTjQoRZCAkUDRw==}
@@ -4871,6 +4893,10 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.1.0
 
+  babel-plugin-react-compiler@1.0.0:
+    dependencies:
+      '@babel/types': 7.29.0
+
   bail@2.0.2: {}
 
   balanced-match@1.0.2: {}
@@ -6331,7 +6357,7 @@ snapshots:
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
 
-  next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+  next@16.1.6(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
       '@next/env': 16.1.6
       '@swc/helpers': 0.5.15
@@ -6350,6 +6376,7 @@ snapshots:
       '@next/swc-linux-x64-musl': 16.1.6
       '@next/swc-win32-arm64-msvc': 16.1.6
       '@next/swc-win32-x64-msvc': 16.1.6
+      babel-plugin-react-compiler: 1.0.0
       sharp: 0.34.5
     transitivePeerDependencies:
       - '@babel/core'

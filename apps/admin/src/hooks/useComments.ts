@@ -11,6 +11,11 @@ import {
   type CommentFilter,
 } from "@/lib/api";
 
+/**
+ * 댓글 목록을 조회하는 쿼리 훅입니다.
+ *
+ * @param filter - 승인 상태/페이지 필터 옵션
+ */
 export function useComments(filter?: CommentFilter) {
   return useQuery({
     queryKey: ["comments", filter],
@@ -18,6 +23,11 @@ export function useComments(filter?: CommentFilter) {
   });
 }
 
+/**
+ * 댓글 승인 뮤테이션 훅입니다.
+ *
+ * 성공 시 댓글 목록과 대시보드 캐시를 무효화합니다.
+ */
 export function useApproveComment() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -29,6 +39,11 @@ export function useApproveComment() {
   });
 }
 
+/**
+ * 댓글 거부 뮤테이션 훅입니다.
+ *
+ * 성공 시 댓글 목록과 대시보드 캐시를 무효화합니다.
+ */
 export function useRejectComment() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -40,6 +55,11 @@ export function useRejectComment() {
   });
 }
 
+/**
+ * 댓글 삭제 뮤테이션 훅입니다.
+ *
+ * 성공 시 댓글 목록과 대시보드 캐시를 무효화합니다.
+ */
 export function useDeleteComment() {
   const queryClient = useQueryClient();
   return useMutation({

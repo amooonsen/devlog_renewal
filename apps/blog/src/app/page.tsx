@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { siteConfig } from "@/config/site";
 import { getFeaturedPosts, getPublishedPosts } from "@/lib/posts";
 import { PostList } from "@/components/post/PostList";
+import { SearchInput } from "@/components/common/SearchInput";
 
 export default async function HomePage() {
   const [featured, recent] = await Promise.all([
@@ -18,6 +20,11 @@ export default async function HomePage() {
         <p className="text-lg text-muted-foreground">
           {siteConfig.description}
         </p>
+        <div className="pt-4">
+          <Suspense fallback={null}>
+            <SearchInput basePath="/post" placeholder="포스트 검색..." />
+          </Suspense>
+        </div>
       </section>
 
       {featured.data && featured.data.length > 0 && (

@@ -1,12 +1,7 @@
-export interface Contact {
-  id: number;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  is_read: boolean;
-  created_at: string;
-}
+import type { Database } from "@repo/database";
+
+// Supabase 생성 타입 재사용
+export type Contact = Database["public"]["Tables"]["contacts"]["Row"];
 
 export interface CreateContactInput {
   name: string;

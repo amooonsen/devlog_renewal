@@ -17,11 +17,11 @@ export default function PostDetailLoading() {
 
       {/* 본문 스켈레톤 */}
       <div className="space-y-4 py-8">
-        {Array.from({ length: 8 }).map((_, i) => (
+        {[95, 80, 88, 72, 96, 84, 78, 90].map((w, i) => (
           <div
             key={i}
             className="h-4 animate-pulse rounded bg-muted"
-            style={{ width: `${70 + Math.random() * 30}%` }}
+            style={{ width: `${w}%` }}
           />
         ))}
       </div>

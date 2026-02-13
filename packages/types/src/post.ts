@@ -1,41 +1,17 @@
-export interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  description: string | null;
-  sort_order: number;
-  created_at: string;
-}
+import type { Database } from "@repo/database";
 
-export interface Tag {
-  id: number;
-  name: string;
-  slug: string;
-  created_at: string;
-}
+// Supabase 생성 타입 재사용
+export type Category = Database["public"]["Tables"]["categories"]["Row"];
+export type Tag = Database["public"]["Tables"]["tags"]["Row"];
+export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
 export type PostStatus = "draft" | "published" | "archived";
 
-export interface Post {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  excerpt: string | null;
-  thumbnail_url: string | null;
-  status: PostStatus;
-  is_featured: boolean;
-  view_count: number;
-  category_id: number;
-  published_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface PostWithRelations extends Post {
+// 관계가 포함된 타입 (조인 쿼리 결과)
+export type PostWithRelations = Post & {
   category: Category;
   tags: Tag[];
-}
+};
 
 export interface PostListItem
   extends Pick<
@@ -68,4 +44,45 @@ export interface PostSearchResult
     | "category_id"
   > {
   rank: number;
+}
+
+// ── Supabase 조인 쿼리 결과 타입 (blog용) ──
+
+/** Supabase 조인 쿼리에서 반환되는 카테고리 참조 형태 */
+type CategoryRef = Pick<Category, "name" | "slug">;
+
+/** Supabase 조인 쿼리에서 반환되는 태그 참조 형태 */
+type TagRef = Pick<Tag, "name" | "slug">;
+
+/** post_tags 중간 테이블 조인 결과 */
+type PostTagJoin = { tags: TagRef | null };
+
+/** 포스트 목록 조회 쿼리 결과 타입 (Supabase join) */
+export interface PostListQueryResult
+  extends Pick<
+    Post,
+    | "id"
+    | "title"
+    | "slug"
+    | "excerpt"
+    | "thumbnail_url"
+    | "published_at"
+    | "view_count"
+    | "is_featured"
+  > {
+  categories: CategoryRef | null;
+  post_tags: PostTagJoin[] | null;
+}
+
+/** 포스트 상세 조회 쿼리 결과 타입 */
+export interface PostDetailQueryResult extends Post {
+  categories: CategoryRef | null;
+  post_tags: PostTagJoin[] | null;
+}
+
+/** 사이트맵 슬러그 쿼리 결과 타입 */
+export interface PostSlugQueryResult {
+  slug: string;
+  updated_at: string;
+  categories: Pick<Category, "slug"> | null;
 }

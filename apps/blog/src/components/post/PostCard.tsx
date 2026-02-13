@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import dayjs from "dayjs";
+import { formatDate } from "@repo/date-utils";
 
 interface PostCardProps {
   title: string;
@@ -56,7 +56,7 @@ export function PostCard({
               </span>
               {publishedAt && (
                 <span className="text-xs text-muted-foreground">
-                  {dayjs(publishedAt).format("YYYY.MM.DD")}
+                  {formatDate(publishedAt)}
                 </span>
               )}
             </div>

@@ -6,6 +6,9 @@ export type {
   PostWithRelations,
   PostListItem,
   PostSearchResult,
+  PostListQueryResult,
+  PostDetailQueryResult,
+  PostSlugQueryResult,
 } from "./post";
 
 export type {
@@ -13,6 +16,7 @@ export type {
   CommentWithReplies,
   CreateCommentInput,
   DeleteCommentInput,
+  CommentPublic,
 } from "./comment";
 
 export type { Contact, CreateContactInput } from "./contact";

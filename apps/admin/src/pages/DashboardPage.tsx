@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import { formatShortDate } from "@repo/date-utils";
 import {
   FileText,
   Send,
@@ -96,7 +96,7 @@ export function DashboardPage() {
                     )}
                   </div>
                   <span className="shrink-0 text-xs text-muted-foreground">
-                    {dayjs(comment.created_at).format("MM.DD")}
+                    {formatShortDate(comment.created_at)}
                   </span>
                 </div>
               ))}
