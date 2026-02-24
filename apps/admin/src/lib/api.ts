@@ -111,9 +111,17 @@ export async function createPost(formData: PostFormData): Promise<Post> {
     postData.published_at = new Date().toISOString();
   }
 
+  // 빈 문자열 → null 변환 (timestamptz/text nullable 컬럼 호환)
+  const insertData = {
+    ...postData,
+    published_at: postData.published_at || null,
+    thumbnail_url: postData.thumbnail_url || null,
+    excerpt: postData.excerpt || null,
+  };
+
   const { data, error } = await supabase
     .from("posts")
-    .insert(postData)
+    .insert(insertData)
     .select()
     .single();
 
@@ -150,9 +158,18 @@ export async function updatePost(
 ): Promise<Post> {
   const { tag_ids, ...postData } = formData;
 
+  // 빈 문자열 → null 변환 (timestamptz/text nullable 컬럼 호환)
+  const updateData = {
+    ...postData,
+    published_at: postData.published_at || null,
+    thumbnail_url: postData.thumbnail_url || null,
+    excerpt: postData.excerpt || null,
+    updated_at: new Date().toISOString(),
+  };
+
   const { data, error } = await supabase
     .from("posts")
-    .update({ ...postData, updated_at: new Date().toISOString() })
+    .update(updateData)
     .eq("id", id)
     .select()
     .single();
