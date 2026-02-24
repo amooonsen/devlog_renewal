@@ -36,6 +36,32 @@ Vercel에 **두 개의 독립 프로젝트**를 등록하고, 각각 `ignoreComm
 
 ---
 
+## 커밋 메시지로 배포 제어
+
+파일 변경 여부와 무관하게 커밋 메시지로 배포를 강제하거나 스킵할 수 있습니다.
+
+| 커밋 메시지 포함 | blog | admin |
+|----------------|------|-------|
+| `[skip blog]`   | ❌ 강제 스킵 | 정상 판단 |
+| `[skip admin]`  | 정상 판단 | ❌ 강제 스킵 |
+| `[deploy blog]` | ✅ 강제 배포 | 정상 판단 |
+| `[deploy admin]`| 정상 판단 | ✅ 강제 배포 |
+
+```bash
+# 예시: blog만 강제 배포 (파일 변경 없어도)
+git commit -m "chore: env 업데이트 [deploy blog]"
+
+# 예시: admin 배포 건너뛰기 (파일 변경 있어도)
+git commit -m "feat: blog 기능 추가 [skip admin]"
+
+# 예시: 둘 다 건너뛰기
+git commit -m "docs: README 수정 [skip blog] [skip admin]"
+```
+
+> **참고**: Vercel Dashboard → Deployments → Redeploy 버튼으로도 수동 재배포 가능.
+
+---
+
 ## 시나리오별 배포 결과
 
 | 변경 경로 | blog | admin |

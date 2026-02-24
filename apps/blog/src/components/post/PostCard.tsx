@@ -55,9 +55,7 @@ export function PostCard({
                 {categoryName}
               </span>
               {publishedAt && (
-                <span className="text-xs text-muted-foreground">
-                  <FormattedDate date={publishedAt} />
-                </span>
+                <FormattedDate date={publishedAt} className="text-xs text-muted-foreground" />
               )}
             </div>
 

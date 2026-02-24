@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getPublishedPosts, getCategories } from "@/lib/posts";
-import { matchesKoreanSearch } from "@/lib/search";
+import { applySearchFilter } from "@/lib/search";
 import { PostList } from "@/components/post/PostList";
 import { Pagination } from "@/components/common/Pagination";
 import { CategoryFilter } from "@/components/common/CategoryFilter";
@@ -26,21 +26,13 @@ export default async function PostListPage({ searchParams }: Props) {
     getCategories(),
   ]);
 
-  let posts = postsResult.data ?? [];
-  let totalCount = postsResult.count ?? 0;
-
-  // 검색어가 있으면 es-hangul로 필터링
-  if (q?.trim()) {
-    posts = posts.filter(
-      (post) =>
-        matchesKoreanSearch(post.title, q) ||
-        (post.excerpt && matchesKoreanSearch(post.excerpt, q))
-    );
-    totalCount = posts.length;
-    // 검색 결과 페이지네이션
-    const offset = (currentPage - 1) * perPage;
-    posts = posts.slice(offset, offset + perPage);
-  }
+  const { posts, totalCount } = applySearchFilter(
+    postsResult.data ?? [],
+    postsResult.count ?? 0,
+    q,
+    currentPage,
+    perPage
+  );
 
   const totalPages = Math.ceil(totalCount / perPage);
   const categories = categoriesResult.data ?? [];

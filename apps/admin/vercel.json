@@ -5,7 +5,7 @@
   "buildCommand": "cd ../.. && pnpm turbo build --filter=admin...",
   "outputDirectory": "dist",
   "installCommand": "cd ../.. && pnpm install",
-  "ignoreCommand": "bash -c 'git diff --quiet HEAD~1 HEAD apps/admin/ packages/ 2>/dev/null || exit 1'",
+  "ignoreCommand": "bash -c 'msg=$(git log -1 --pretty=%s); echo \"$msg\" | grep -q \"\\[skip admin\\]\" && exit 0; echo \"$msg\" | grep -q \"\\[deploy admin\\]\" && exit 1; git diff --quiet HEAD~1 HEAD apps/admin/ packages/ 2>/dev/null || exit 1'",
   "rewrites": [
     {
       "source": "/(.*)",
