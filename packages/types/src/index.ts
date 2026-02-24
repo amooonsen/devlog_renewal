@@ -11,12 +11,6 @@ export type {
   PostSlugQueryResult,
 } from "./post";
 
-export type {
-  Comment,
-  CommentWithReplies,
-  CreateCommentInput,
-  DeleteCommentInput,
-  CommentPublic,
-} from "./comment";
+export type { Comment, CommentPublic } from "./comment";
 
-export type { Contact, CreateContactInput } from "./contact";
+export type { Contact } from "./contact";

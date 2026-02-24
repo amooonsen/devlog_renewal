@@ -8,6 +8,14 @@ import type {
   PostSlugQueryResult,
 } from "@repo/types";
 
+/** 포스트 목록 조회 시 공통으로 사용하는 select 필드 */
+const POST_LIST_SELECT = `
+  id, title, slug, excerpt, thumbnail_url,
+  published_at, view_count, is_featured,
+  categories(name, slug),
+  post_tags(tags(name, slug))
+` as const;
+
 /**
  * 발행된 포스트 목록을 페이지네이션하여 조회합니다.
  *
@@ -50,15 +58,7 @@ export async function getPublishedPosts(options?: {
 
   let query = supabase
     .from("posts")
-    .select(
-      `
-      id, title, slug, excerpt, thumbnail_url,
-      published_at, view_count, is_featured,
-      categories(name, slug),
-      post_tags(tags(name, slug))
-    `,
-      { count: "exact" }
-    )
+    .select(POST_LIST_SELECT, { count: "exact" })
     .eq("status", "published")
     .order("published_at", { ascending: false });
 
@@ -126,14 +126,7 @@ export async function getFeaturedPosts(): Promise<{
 
   const { data } = await supabase
     .from("posts")
-    .select(
-      `
-      id, title, slug, excerpt, thumbnail_url,
-      published_at, view_count, is_featured,
-      categories(name, slug),
-      post_tags(tags(name, slug))
-    `
-    )
+    .select(POST_LIST_SELECT)
     .eq("status", "published")
     .eq("is_featured", true)
     .order("published_at", { ascending: false })
