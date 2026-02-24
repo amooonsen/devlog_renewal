@@ -1,6 +1,5 @@
 import type {Metadata} from "next";
 import Link from "next/link";
-import {formatKoreanDate} from "@repo/date-utils";
 import {notFound} from "next/navigation";
 import {getPost, getAllPublishedSlugs} from "@/lib/posts";
 import {getCommentsByPost} from "@/lib/comments";
@@ -9,6 +8,7 @@ import {CommentSection} from "@/components/comment/CommentSection";
 import {ViewCounter} from "@/components/post/ViewCounter";
 import {TableOfContents} from "@/components/post/TableOfContents";
 import {ScrollToTop} from "@/components/common/ScrollToTop";
+import {FormattedDate} from "@/components/common/FormattedDate";
 import {calculateReadTime, formatReadTime} from "@/lib/readTime";
 
 export async function generateStaticParams() {
@@ -97,7 +97,7 @@ export default async function PostDetailPage({params}: Props) {
             {post.published_at && (
               <>
                 <span className="text-muted-foreground">·</span>
-                <time className="text-muted-foreground">{formatKoreanDate(post.published_at)}</time>
+                <FormattedDate date={post.published_at} format="korean" className="text-muted-foreground" />
               </>
             )}
             <span className="text-muted-foreground">·</span>

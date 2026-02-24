@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { formatDate } from "@repo/date-utils";
+import { FormattedDate } from "@/components/common/FormattedDate";
 
 interface PostCardProps {
   title: string;
@@ -56,7 +56,7 @@ export function PostCard({
               </span>
               {publishedAt && (
                 <span className="text-xs text-muted-foreground">
-                  {formatDate(publishedAt)}
+                  <FormattedDate date={publishedAt} />
                 </span>
               )}
             </div>

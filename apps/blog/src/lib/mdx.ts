@@ -3,6 +3,7 @@ import rehypePrettyCode from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import type { Options } from "rehype-pretty-code";
+import { cacheLife } from "next/cache";
 import { mdxComponents } from "@/components/mdx/MDXComponents";
 import type { JSX } from "react";
 
@@ -59,6 +60,10 @@ export function extractHeadings(source: string): Heading[] {
  * @returns 렌더링된 React 엘리먼트
  */
 export async function renderMDX(source: string): Promise<JSX.Element> {
+  // "use cache": compileMDX(shiki/rehype-pretty-code)가 내부적으로 Date.now()를 호출 →
+  // cacheComponents 모드에서 캐시 경계 밖 Date.now() 금지 규칙을 피하기 위해 필요
+  "use cache";
+  cacheLife("days");
   const { content } = await compileMDX({
     source,
     options: {
