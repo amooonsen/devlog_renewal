@@ -8,6 +8,12 @@ import { CategoryFilter } from "@/components/common/CategoryFilter";
 import { SearchInput } from "@/components/common/SearchInput";
 import { notFound } from "next/navigation";
 
+// 빌드 시 카테고리 경로를 정적으로 생성
+export async function generateStaticParams() {
+  const { data } = await getCategories();
+  return (data ?? []).map((cat) => ({ category: cat.slug }));
+}
+
 interface Props {
   params: Promise<{ category: string }>;
   searchParams: Promise<{ page?: string; q?: string }>;

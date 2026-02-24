@@ -3,7 +3,9 @@ import { useParams, useNavigate } from "react-router";
 import { useForm, Controller, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import MDEditor from "@uiw/react-md-editor";
-import { ArrowLeft, Save, AlertCircle, CheckCircle } from "lucide-react";
+import { ArrowLeft, Save, AlertCircle, CheckCircle, CalendarIcon } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { ko } from "date-fns/locale";
 import {
   Badge,
   Button,
@@ -22,6 +24,10 @@ import {
   CardTitle,
   Separator,
   Skeleton,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Calendar,
 } from "@repo/ui";
 import { toast } from "sonner";
 import {
@@ -321,12 +327,79 @@ export function PostEditorPage() {
                 {/* 발행 날짜 */}
                 {watch("status") === "published" && (
                   <div className="space-y-2">
-                    <Label htmlFor="published_at">발행 날짜</Label>
-                    <Input
-                      id="published_at"
-                      type="datetime-local"
-                      {...register("published_at")}
-                      placeholder="비워두면 현재 시간"
+                    <Label>발행 날짜</Label>
+                    <Controller
+                      name="published_at"
+                      control={control}
+                      render={({ field }) => {
+                        const dateValue = field.value
+                          ? parseISO(field.value)
+                          : undefined;
+                        const timeValue = field.value
+                          ? field.value.slice(11, 16)
+                          : "";
+
+                        const handleDateSelect = (date: Date | undefined) => {
+                          if (!date) {
+                            field.onChange("");
+                            return;
+                          }
+                          const time = timeValue || "00:00";
+                          const [h, m] = time.split(":");
+                          date.setHours(Number(h), Number(m), 0, 0);
+                          field.onChange(date.toISOString());
+                        };
+
+                        const handleTimeChange = (
+                          e: React.ChangeEvent<HTMLInputElement>
+                        ) => {
+                          const time = e.target.value;
+                          if (dateValue) {
+                            const [h, m] = time.split(":");
+                            const updated = new Date(dateValue);
+                            updated.setHours(Number(h), Number(m), 0, 0);
+                            field.onChange(updated.toISOString());
+                          }
+                        };
+
+                        return (
+                          <div className="space-y-2">
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  className="w-full justify-start text-left font-normal"
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {dateValue ? (
+                                    format(dateValue, "PPP", { locale: ko })
+                                  ) : (
+                                    <span className="text-muted-foreground">
+                                      날짜 선택
+                                    </span>
+                                  )}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={dateValue}
+                                  onSelect={handleDateSelect}
+                                  locale={ko}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            {dateValue && (
+                              <Input
+                                type="time"
+                                value={timeValue}
+                                onChange={handleTimeChange}
+                              />
+                            )}
+                          </div>
+                        );
+                      }}
                     />
                     <p className="text-xs text-muted-foreground">
                       비워두면 현재 시간으로 자동 설정됩니다.

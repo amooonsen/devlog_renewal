@@ -18,8 +18,15 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+    // refreshSession()으로 최신 app_metadata(role: admin)가 포함된 JWT 강제 갱신
+    // 기존 세션이 마이그레이션 이전에 발급된 경우 RLS is_admin() 실패를 방지
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session) {
+        const { data } = await supabase.auth.refreshSession();
+        setUser(data.user ?? null);
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 

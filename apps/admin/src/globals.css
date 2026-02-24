@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-/* packages/ui 소스 파일의 Tailwind 클래스를 CSS에 포함 */
-@source "../../packages/ui/src";
+/* packages/ui 소스 파일의 Tailwind 클래스를 CSS에 포함 (globals.css → src/ → admin/ → apps/ → root/) */
+@source "../../../packages/ui/src";
 
 @custom-variant dark (&:is(.dark *));
 

@@ -110,3 +110,14 @@ export {
   TooltipContent,
   TooltipProvider,
 } from "./components/tooltip";
+
+// Popover
+export {
+  Popover,
+  PopoverTrigger,
+  PopoverAnchor,
+  PopoverContent,
+} from "./components/popover";
+
+// Calendar
+export { Calendar, type CalendarProps } from "./components/calendar";
