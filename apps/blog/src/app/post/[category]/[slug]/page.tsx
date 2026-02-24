@@ -11,9 +11,6 @@ import {TableOfContents} from "@/components/post/TableOfContents";
 import {ScrollToTop} from "@/components/common/ScrollToTop";
 import {calculateReadTime, formatReadTime} from "@/lib/readTime";
 
-// 빌드 시 게시된 포스트를 정적으로 생성, 1시간마다 ISR 재검증
-export const revalidate = 3600;
-
 export async function generateStaticParams() {
   const {data} = await getAllPublishedSlugs();
   return (data ?? []).map((post) => ({
