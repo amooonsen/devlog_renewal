@@ -1,18 +1,10 @@
 import { CommentItem } from "./CommentItem";
 import { CommentForm } from "./CommentForm";
-
-interface Comment {
-  id: number;
-  post_id: string;
-  author_name: string;
-  content: string;
-  parent_id: number | null;
-  created_at: string;
-}
+import type { CommentPublic } from "@repo/types";
 
 interface CommentListProps {
-  comments: Comment[];
-  replies: Comment[];
+  comments: CommentPublic[];
+  replies: CommentPublic[];
   postId: string;
   replyTo: number | null;
   onReply: (commentId: number | null) => void;

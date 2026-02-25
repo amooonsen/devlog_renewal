@@ -13,8 +13,8 @@ export function ViewCounter({ postId }: ViewCounterProps) {
     if (counted.current) return;
     counted.current = true;
 
-    fetch(`/api/views/${postId}`, { method: "POST" }).catch(() => {
-      // 조회수 증가 실패는 무시
+    fetch(`/api/views/${postId}`, { method: "POST" }).catch((err: unknown) => {
+      console.warn("[ViewCounter] 조회수 증가 실패:", err);
     });
   }, [postId]);
 

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createReadOnlyClient } from "@/lib/supabase-readonly";
 import { matchesKoreanSearch } from "@/lib/search";
+import { SEARCH_FETCH_LIMIT, SEARCH_RESULTS_LIMIT } from "@/config/constants";
+import type { PostListQueryResult } from "@repo/types";
 
 /**
  * 포스트 검색 API입니다.
@@ -30,14 +32,13 @@ export async function GET(request: Request) {
     )
     .eq("status", "published")
     .order("published_at", { ascending: false })
-    .limit(50);
+    .limit(SEARCH_FETCH_LIMIT);
 
   // es-hangul 클라이언트 필터링 (초성 + 자모 검색)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const filtered = (posts ?? []).filter((post: any) =>
+  const filtered = ((posts as PostListQueryResult[]) ?? []).filter((post) =>
     matchesKoreanSearch(post.title, query) ||
     (post.excerpt && matchesKoreanSearch(post.excerpt, query))
   );
 
-  return NextResponse.json({ data: filtered.slice(0, 20) });
+  return NextResponse.json({ data: filtered.slice(0, SEARCH_RESULTS_LIMIT) });
 }

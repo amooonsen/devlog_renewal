@@ -4,23 +4,15 @@ import {useState} from "react";
 import {CommentList} from "./CommentList";
 import {CommentForm} from "./CommentForm";
 import {useRouter} from "next/navigation";
-
-interface Comment {
-  id: number;
-  post_id: string;
-  author_name: string;
-  content: string;
-  parent_id: number | null;
-  created_at: string;
-}
+import type {CommentPublic} from "@repo/types";
 
 interface CommentSectionProps {
   postId: string;
-  comments: Comment[];
+  comments: CommentPublic[];
 }
 
 export function CommentSection({postId, comments: initialComments}: CommentSectionProps) {
-  const [comments, setComments] = useState(initialComments);
+  const [comments, setComments] = useState<CommentPublic[]>(initialComments);
   const [replyTo, setReplyTo] = useState<number | null>(null);
 
   const router = useRouter();

@@ -1,29 +1,9 @@
+import type { PostListQueryResult } from "@repo/types";
+import { extractTags } from "@/lib/post-utils";
 import { PostCard } from "./PostCard";
 
-interface PostItem {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  thumbnail_url: string | null;
-  published_at: string | null;
-  view_count: number;
-  is_featured: boolean;
-  categories: { name: string; slug: string } | null;
-  post_tags: { tags: { name: string; slug: string } | null }[] | null;
-}
-
 interface PostListProps {
-  posts: PostItem[];
-}
-
-function extractTags(
-  postTags: { tags: { name: string; slug: string } | null }[] | null
-): { name: string; slug: string }[] {
-  if (!postTags) return [];
-  return postTags
-    .map((pt) => pt.tags)
-    .filter((t): t is { name: string; slug: string } => t !== null);
+  posts: PostListQueryResult[];
 }
 
 export function PostList({ posts }: PostListProps) {

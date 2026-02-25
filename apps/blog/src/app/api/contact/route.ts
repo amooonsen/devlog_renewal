@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase";
+import { contactSchema } from "@/lib/schemas";
 
 /**
  * 새 문의를 등록합니다.
@@ -11,33 +12,18 @@ import { createClient } from "@/lib/supabase";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, subject, message } = body;
+    const result = contactSchema.safeParse(body);
 
-    if (!name || !email || !subject || !message) {
-      return NextResponse.json(
-        { error: "필수 항목을 모두 입력해주세요." },
-        { status: 400 }
-      );
+    if (!result.success) {
+      const message = result.error.issues[0]?.message ?? "입력값이 올바르지 않습니다.";
+      return NextResponse.json({ error: message }, { status: 400 });
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: "올바른 이메일 주소를 입력해주세요." },
-        { status: 400 }
-      );
-    }
-
-    if (subject.length > 200) {
-      return NextResponse.json(
-        { error: "제목은 200자 이내로 입력해주세요." },
-        { status: 400 }
-      );
-    }
+    const { name, email, subject, message } = result.data;
 
     const supabase = await createClient();
 
-    // createServerClient의 contacts INSERT 타입이 never로 추론되는 SDK 제한
+    // @supabase/ssr의 createServerClient는 INSERT 타입을 never로 추론하는 SDK 제한
     // 런타임에서는 RLS(contacts_anyone_insert)으로 정상 동작
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase as any).from("contacts").insert({
