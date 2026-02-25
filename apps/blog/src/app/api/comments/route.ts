@@ -1,5 +1,17 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase";
+import { commentSchema } from "@/lib/schemas";
+
+const commentPostSchema = commentSchema.extend({
+  post_id: z.string().min(1, "포스트 ID가 필요합니다."),
+  parent_id: z.number().nullable().optional(),
+});
+
+const commentDeleteSchema = z.object({
+  comment_id: z.number().int(),
+  password: z.string().min(1, "비밀번호를 입력해주세요."),
+});
 
 /**
  * 새 댓글을 작성합니다.
@@ -11,38 +23,26 @@ import { createClient } from "@/lib/supabase";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { post_id, author_name, content, password, parent_id } = body;
+    const result = commentPostSchema.safeParse(body);
 
-    if (!post_id || !author_name || !content || !password) {
-      return NextResponse.json(
-        { error: "필수 항목을 모두 입력해주세요." },
-        { status: 400 }
-      );
+    if (!result.success) {
+      const message = result.error.issues[0]?.message ?? "입력값이 올바르지 않습니다.";
+      return NextResponse.json({ error: message }, { status: 400 });
     }
 
-    if (author_name.length > 50) {
-      return NextResponse.json(
-        { error: "이름은 50자 이내로 입력해주세요." },
-        { status: 400 }
-      );
-    }
-
-    if (content.length > 1000) {
-      return NextResponse.json(
-        { error: "댓글은 1000자 이내로 입력해주세요." },
-        { status: 400 }
-      );
-    }
+    const { post_id, author_name, content, password, parent_id } = result.data;
 
     const supabase = await createClient();
 
+    // @supabase/ssr의 createServerClient는 INSERT 타입을 never로 추론하는 SDK 제한
+    // 런타임에서는 RLS 정책에 의해 정상 동작
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase as any).from("comments").insert({
       post_id,
       author_name: author_name.trim(),
       content: content.trim(),
       password,
-      parent_id: parent_id || null,
+      parent_id: parent_id ?? null,
     });
 
     if (error) {
@@ -69,14 +69,14 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const body = await request.json();
-    const { comment_id, password } = body;
+    const result = commentDeleteSchema.safeParse(body);
 
-    if (!comment_id || !password) {
-      return NextResponse.json(
-        { error: "필수 항목을 모두 입력해주세요." },
-        { status: 400 }
-      );
+    if (!result.success) {
+      const message = result.error.issues[0]?.message ?? "입력값이 올바르지 않습니다.";
+      return NextResponse.json({ error: message }, { status: 400 });
     }
+
+    const { comment_id, password } = result.data;
 
     const supabase = await createClient();
 

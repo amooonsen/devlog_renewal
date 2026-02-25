@@ -3,16 +3,10 @@
 import { useState } from "react";
 import { formatDateTime } from "@repo/date-utils";
 import { Button, Input } from "@repo/ui";
-
-interface Comment {
-  id: number;
-  author_name: string;
-  content: string;
-  created_at: string;
-}
+import type { CommentPublic } from "@repo/types";
 
 interface CommentItemProps {
-  comment: Comment;
+  comment: Pick<CommentPublic, "id" | "author_name" | "content" | "created_at">;
   onReply?: () => void;
   onDeleted: () => void;
 }

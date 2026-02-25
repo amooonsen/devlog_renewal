@@ -8,7 +8,6 @@
   "ignoreCommand": "bash -c 'msg=$(git log -1 --pretty=%s); echo \"$msg\" | grep -q \"\\[skip blog\\]\" && exit 0; echo \"$msg\" | grep -q \"\\[deploy blog\\]\" && exit 1; git diff --quiet HEAD~1 HEAD apps/blog/ packages/ 2>/dev/null || exit 1'",
   "functions": {
     "app/api/**": {
-      "memory": 1024,
       "maxDuration": 10
     }
   },

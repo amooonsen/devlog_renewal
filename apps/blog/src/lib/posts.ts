@@ -1,6 +1,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { createReadOnlyClient } from "./supabase-readonly";
 import { createClient } from "./supabase";
+import { POSTS_PER_PAGE, FEATURED_POSTS_LIMIT } from "@/config/constants";
 import type {
   Category,
   PostListQueryResult,
@@ -39,7 +40,7 @@ export async function getPublishedPosts(options?: {
   if (!supabase) return { data: null, count: null };
 
   const page = options?.page ?? 1;
-  const limit = options?.limit ?? 10;
+  const limit = options?.limit ?? POSTS_PER_PAGE;
   const offset = (page - 1) * limit;
 
   // 카테고리 슬러그로 필터링하는 경우, 먼저 category_id를 조회
@@ -130,7 +131,7 @@ export async function getFeaturedPosts(): Promise<{
     .eq("status", "published")
     .eq("is_featured", true)
     .order("published_at", { ascending: false })
-    .limit(3);
+    .limit(FEATURED_POSTS_LIMIT);
 
   return { data };
 }

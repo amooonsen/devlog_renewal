@@ -10,6 +10,7 @@ import {TableOfContents} from "@/components/post/TableOfContents";
 import {ScrollToTop} from "@/components/common/ScrollToTop";
 import {FormattedDate} from "@/components/common/FormattedDate";
 import {calculateReadTime, formatReadTime} from "@/lib/readTime";
+import {extractTags} from "@/lib/post-utils";
 
 export async function generateStaticParams() {
   const {data} = await getAllPublishedSlugs();
@@ -51,10 +52,7 @@ export default async function PostDetailPage({params}: Props) {
     notFound();
   }
 
-  const tags =
-    post.post_tags
-      ?.map((pt) => pt.tags)
-      .filter((t): t is {name: string; slug: string} => t !== null) ?? [];
+  const tags = extractTags(post.post_tags);
 
   // 댓글은 post.id로 조회
   const {data: comments} = await getCommentsByPost(post.id);
