@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 
 /** 포맷 상수 */
-export const DATE_FORMAT = {
+const DATE_FORMAT = {
   /** YYYY.MM.DD */
   DATE: "YYYY.MM.DD",
   /** YYYY.MM.DD HH:mm */
@@ -32,4 +32,3 @@ export function formatKoreanDate(date: string | Date): string {
   return dayjs(date).format(DATE_FORMAT.KOREAN);
 }
 
-export { dayjs };

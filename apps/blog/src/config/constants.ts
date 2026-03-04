@@ -9,12 +9,3 @@ export const SEARCH_FETCH_LIMIT = 50;
 
 /** 검색 결과 반환 최대 수 */
 export const SEARCH_RESULTS_LIMIT = 20;
-
-/** 댓글 작성자 이름 최대 글자 수 */
-export const COMMENT_AUTHOR_MAX_LENGTH = 50;
-
-/** 댓글 내용 최대 글자 수 */
-export const COMMENT_CONTENT_MAX_LENGTH = 1000;
-
-/** 문의 제목 최대 글자 수 */
-export const CONTACT_SUBJECT_MAX_LENGTH = 200;
