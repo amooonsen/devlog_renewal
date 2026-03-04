@@ -4,8 +4,6 @@ export type {
   PostStatus,
   Post,
   PostWithRelations,
-  PostListItem,
-  PostSearchResult,
   PostListQueryResult,
   PostDetailQueryResult,
   PostSlugQueryResult,
